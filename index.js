@@ -1,3 +1,33 @@
+geofs.aircraft.instance.definition.sounds[0].effects.volume.value = "rpm";
+geofs.aircraft.instance.definition.sounds[0].effects.pitch.value = "rpm";
+geofs.aircraft.instance.definition.sounds[0].file = "https://138772948-227015667470610340.preview.editmysite.com/uploads/1/3/8/7/138772948/neo2.mp3"
+geofs.aircraft.instance.definition.sounds[1].effects.volume.value = "rpm";
+geofs.aircraft.instance.definition.sounds[1].effects.pitch.value = "rpm";
+geofs.aircraft.instance.definition.sounds[1].file = "https://138772948-227015667470610340.preview.editmysite.com/uploads/1/3/8/7/138772948/neo2.mp3"
+geofs.aircraft.instance.definition.sounds[2].effects.volume.value = "rpm";
+geofs.aircraft.instance.definition.sounds[2].effects.pitch.value = "rpm";
+geofs.aircraft.instance.definition.sounds[2].file = "https://138772948-227015667470610340.preview.editmysite.com/uploads/1/3/8/7/138772948/neo3.mp3"
+geofs.aircraft.instance.definition.sounds[5].file = "https://138772948-227015667470610340.preview.editmysite.com/uploads/1/3/8/7/138772948/startupneo.mp3"
+
+geofs.aircraft.instance.definition.sounds[7] = {}
+geofs.aircraft.instance.definition.sounds[7].id = "rpm4"
+geofs.aircraft.instance.definition.sounds[7].file = "https://138772948-227015667470610340.preview.editmysite.com/uploads/1/3/8/7/138772948/neo2.mp3"
+geofs.aircraft.instance.definition.sounds[7].effects = { "volume": { "value": "rpm", "ramp": [800, 950, 2500, 3500], "ratio": 1 }, "pitch": { "value": "rpm", "ramp": [0, 20000, 20000, 20000], "offset": 1, "ratio": 1 } };
+geofs.aircraft.instance.definition.sounds[8] = {}
+geofs.aircraft.instance.definition.sounds[8].id = "rpm5"
+geofs.aircraft.instance.definition.sounds[8].file = "https://138772948-227015667470610340.preview.editmysite.com/uploads/1/3/8/7/138772948/neo2.mp3"
+geofs.aircraft.instance.definition.sounds[8].effects = { "volume": { "value": "rpm", "ramp": [1000, 2500, 10000, 10000], "ratio": 1 }, "pitch": { "value": "rpm", "ramp": [0, 20000, 20000, 20000], "offset": 1, "ratio": 1.5 } };
+geofs.aircraft.instance.definition.sounds[9] = {}
+geofs.aircraft.instance.definition.sounds[9].id = "rpm6"
+geofs.aircraft.instance.definition.sounds[9].file = "https://138772948-227015667470610340.preview.editmysite.com/uploads/1/3/8/7/138772948/neo3.mp3"
+geofs.aircraft.instance.definition.sounds[9].effects = { "volume": { "value": "rpm", "ramp": [6000, 20000, 20000, 20000], "ratio": 1 }, "pitch": { "value": "rpm", "ramp": [1000, 20000, 20000, 20000], "offset": 1, "ratio": 1.5 } };
+
+geofs.aircraft.instance.definition.sounds[10] = {}
+geofs.aircraft.instance.definition.sounds[10].id = "ptuBork"
+geofs.aircraft.instance.definition.sounds[10].file = "https://138772948-227015667470610340.preview.editmysite.com/uploads/1/3/8/7/138772948/ptu.mp3"
+geofs.aircraft.instance.definition.sounds[10].effects = { "start": { "value": "ptu" } };
+
+
 //GPWS and RadioAlt callout test
 
 isApprConfig = false;
@@ -368,15 +398,29 @@ geofs.aircraft.instance.definition.sounds[30].file = "https://138772948-22701566
 geofs.aircraft.instance.definition.sounds[30].effects = { "start": { "value": "isTCASClear" } }
 
 geofs.aircraft.instance.definition.sounds[31] = {};
-geofs.aircraft.instance.definition.sounds[31].id = "stall"
-geofs.aircraft.instance.definition.sounds[31].file = "https://sage-narwhal-290a3c.netlify.app/boeingstall.mp3"
-geofs.aircraft.instance.definition.sounds[31].effects = { "start": { "value": "isStall" } }
+geofs.aircraft.instance.definition.sounds[31].id = "retard"
+geofs.aircraft.instance.definition.sounds[31].file = "https://138772948-227015667470610340.preview.editmysite.com/uploads/1/3/8/7/138772948/retard.mp3"
+geofs.aircraft.instance.definition.sounds[31].effects = { "start": { "value": "isRetard" } }
 
 geofs.aircraft.instance.definition.sounds[32] = {};
-geofs.aircraft.instance.definition.sounds[32].id = "overspeed";
-geofs.aircraft.instance.definition.sounds[32].file = "https://138772948-227015667470610340.preview.editmysite.com/uploads/1/3/8/7/138772948/sounds_overspeed.mp3";
-geofs.aircraft.instance.definition.sounds[32].effects = {
+geofs.aircraft.instance.definition.sounds[32].id = "stall"
+geofs.aircraft.instance.definition.sounds[32].file = "https://sage-narwhal-290a3c.netlify.app/boeingstall.mp3"
+geofs.aircraft.instance.definition.sounds[32].effects = { "start": { "value": "isStall" } }
+
+geofs.aircraft.instance.definition.sounds[33] = {};
+geofs.aircraft.instance.definition.sounds[33].id = "overspeed";
+geofs.aircraft.instance.definition.sounds[33].file = "https://138772948-227015667470610340.preview.editmysite.com/uploads/1/3/8/7/138772948/sounds_overspeed.mp3";
+geofs.aircraft.instance.definition.sounds[33].effects = {
 	"start": {
 		"value": "overspeed"
 	}
 };
+
+audio.init(geofs.aircraft.instance.definition.sounds);
+geofs.aircraft.instance.definition.sounds[0].effects.volume.ratio = 100
+geofs.aircraft.instance.definition.sounds[1].effects.volume.ratio = 100
+geofs.aircraft.instance.definition.sounds[2].effects.volume.ratio = 100
+geofs.aircraft.instance.definition.sounds[3].effects.volume.ratio = 100
+geofs.aircraft.instance.definition.sounds[7].effects.volume.ratio = 100
+geofs.aircraft.instance.definition.sounds[8].effects.volume.ratio = 100
+geofs.aircraft.instance.definition.sounds[9].effects.volume.ratio = 100
