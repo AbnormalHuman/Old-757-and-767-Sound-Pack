@@ -54,6 +54,8 @@ geofs.animation.values.gpws40 = 0;
 geofs.animation.values.gpws30 = 0;
 geofs.animation.values.gpws20 = 0;
 geofs.animation.values.gpws10 = 0;
+geofs.animation.values.isRetard = 0;
+restingPoint = 12.232906828403847;
 
 function getTrafficProximity() {
   Object.values(multiplayer.visibleUsers).forEach(function(e) {
