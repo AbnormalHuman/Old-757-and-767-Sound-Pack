@@ -1,4 +1,3 @@
-function assignSound() {
 geofs.aircraft.instance.definition.sounds[0].effects.volume.value = "rpm";
 geofs.aircraft.instance.definition.sounds[0].effects.pitch.value = "rpm";
 geofs.aircraft.instance.definition.sounds[0].file = "https://138772948-227015667470610340.preview.editmysite.com/uploads/1/3/8/7/138772948/neo2.mp3"
