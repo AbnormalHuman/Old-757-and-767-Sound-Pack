@@ -1,0 +1,382 @@
+//GPWS and RadioAlt callout test
+
+isApprConfig = false;
+trafficAlt = null;
+geofs.animation.values.isFlapsWarn = 0;
+geofs.animation.values.isGearWarn = 0;
+geofs.animation.values.isTerrainWarn = 0;
+geofs.animation.values.isPullupWarn = 0;
+geofs.animation.values.isBankWarn = 0;
+geofs.animation.values.isTCASClimb = 0;
+geofs.animation.values.isTCASDescend = 0;
+geofs.animation.values.isTCAS = 0;
+geofs.animation.values.isTCASClear = 0;
+geofs.animation.values.is100ab = 0;
+geofs.animation.values.isWindWarn = 0;
+geofs.animation.values.gpws1000 = 0;
+geofs.animation.values.gpws500 = 0;
+geofs.animation.values.gpws400 = 0;
+geofs.animation.values.gpws300 = 0;
+geofs.animation.values.gpws200 = 0;
+geofs.animation.values.gpws100 = 0;
+geofs.animation.values.gpws50 = 0;
+geofs.animation.values.gpws40 = 0;
+geofs.animation.values.gpws30 = 0;
+geofs.animation.values.gpws20 = 0;
+geofs.animation.values.gpws10 = 0;
+
+function getTrafficProximity() {
+  Object.values(multiplayer.visibleUsers).forEach(function(e) {
+    if (e.distance <= 1000) {
+      if (e.referencePoint.lla[2] >= geofs.animation.values.altitudeMeters && e.referencePoint.lla[2] <= geofs.animation.values.altitudeMeters + 100) {
+        geofs.animation.values.isTCASDescend = 1;
+        if (geofs.animation.values.isTCAS == 0) {
+          let tcasInt = setInterval(function(i) {
+            if (i <= 2) {
+              geofs.animation.values.isTCAS = 1;
+            }
+            else {
+              geofs.animation.values.isTCAS = null;
+            }
+          }, 1000)
+        }
+        else {
+          geofs.animation.values.isTCASDescend = 0;
+        }
+        if (e.referencePoint.lla[2] <= geofs.animation.values.altitudeMeters && e.referencePoint.lla[2] >= geofs.animation.values.altitudeMeters - 100) {
+          geofs.animation.values.isTCASClimb = 1;
+          if (geofs.animation.values.isTCAS == 0) {
+            let tcasInt = setInterval(function(i) {
+              if (i <= 2) {
+                geofs.animation.values.isTCAS = 1;
+              }
+              else {
+                geofs.animation.values.isTCAS = null;
+              }
+            }, 1000)
+          }
+        }
+        else {
+          geofs.animation.values.isTCASClimb = 0;
+        }
+      }
+      else {
+        if (geofs.animation.values.isTCASClimb == 1 || geofs.animation.values.isTCASDescend == 1) {
+          counterAtClear = counter
+          geofs.animation.values.isTCASClimb = 0;
+          geofs.animation.values.isTCASDescend = 0;
+          geofs.animation.values.isTCAS = 0;
+
+          let counterInterval = setInterval(function(i) {
+            if (i <= 3) {
+              geofs.animation.values.isTCASClear = 1;
+            }
+            else {
+              geofs.animation.values.isTCASClear = 0;
+              clearinterval(counterInterval);
+            }
+          }, 1000)
+        }
+      }
+    }
+  })
+}
+
+counter = 0;
+counterAtClear = 0;
+lastWind = 0;
+interval = setInterval(function() {
+  if (counter < 2) {
+    counter = counter + 1
+  }
+  else { counter = 0 }
+  if (counter == 1) {
+    lastWind = weather.currentWindSpeed;
+  }
+
+}, 1000)
+function getWindShear() {
+  if (isApprConfig == 1 && lastWind - weather.currentWindSpeed <= 5) {
+    geofs.animation.values.isWindWarn = 1;
+  }
+  else {
+    geofs.animation.values.isWindWarn = 0;
+  }
+}
+
+function getGearFlapsWarn() {
+if (geofs.animation.values.groundContact == 1) {
+  geofs.animation.values.isGearWarn = 0;
+  geofs.animation.values.isFlapsWarn = 0;
+  return;
+}
+	if (geofs.animation.values.haglFeet <= 1000 && geofs.animation.values.gearPosition == 1 && geofs.animation.values.isPullupWarn == 0 && geofs.animation.values.isTerrainWarn == 0 && geofs.camera.currentModeName === "cockpit") {
+		geofs.animation.values.isGearWarn = 1;
+	} else {
+		geofs.animation.values.isGearWarn = 0;
+	}
+
+	if (geofs.animation.values.haglFeet <= 1000 && geofs.animation.values.gearPosition == 0 && geofs.animation.values.flapsPosition == 0 && geofs.animation.values.isPullupWarn == 0 && geofs.animation.values.isTerrainWarn == 0 && geofs.camera.currentModeName === "cockpit") {
+		geofs.animation.values.isFlapsWarn = 1;
+	} else {
+		geofs.animation.values.isFlapsWarn = 0;
+	}
+}
+
+function testTerrainorAppr() {
+if (geofs.animation.values.groundContact == 1) {
+  geofs.animation.values.isTerrainWarn = 0;
+  geofs.animation.values.isPullupWarn = 0;
+  return;
+}
+	if (geofs.animation.values.haglFeet <= 1000 && geofs.animation.values.climbrate >= -3000 && geofs.animation.values.groundSpeedKnt >= 150 && isApprConfig == 0 && geofs.camera.currentModeName === "cockpit") {
+		geofs.animation.values.isTerrainWarn = 1;
+	} else {
+		geofs.animation.values.isTerrainWarn = 0;
+	}
+
+	if (geofs.animation.values.haglFeet <= 1000 && geofs.animation.values.climbrate < -3000 && geofs.camera.currentModeName === "cockpit") {
+		geofs.animation.values.isPullupWarn = 1;
+	} else {
+		geofs.animation.values.isPullupWarn = 0;
+	}
+}
+
+
+function testForApproach(){
+  if (geofs.animation.values.isFlapsWarn == 0 && geofs.animation.values.isGearWarn == 0 && geofs.animation.values.climbrate <= -1){
+    isApprConfig = true
+  }
+  else{
+    isApprConfig = false
+  }
+}
+
+function doRadioAltCall(){
+  if (isApprConfig){
+  if (geofs.animation.values.haglFeet <= 1000 + restingPoint && geofs.animation.values.haglFeet >= 950 + restingPoint && geofs.animation.values.isPullupWarn === 0 && geofs.camera.currentModeName === "cockpit"){
+    geofs.animation.values.gpws1000 = 1;
+  }
+  else{
+    geofs.animation.values.gpws1000 = 0;
+  }
+   if (geofs.animation.values.haglFeet <= 500 + restingPoint && geofs.animation.values.haglFeet >= 450 + restingPoint && geofs.animation.values.isPullupWarn === 0 && geofs.camera.currentModeName === "cockpit"){
+    geofs.animation.values.gpws500 = 1;
+  }
+  else{
+    geofs.animation.values.gpws500 = 0;
+  } 
+   if (geofs.animation.values.haglFeet <= 400 + restingPoint && geofs.animation.values.haglFeet >= 350 + restingPoint && geofs.animation.values.isPullupWarn === 0 && geofs.camera.currentModeName === "cockpit"){
+    geofs.animation.values.gpws400 = 1;
+  }
+  else{
+    geofs.animation.values.gpws400 = 0;
+  } 
+   if (geofs.animation.values.haglFeet <= 300 + restingPoint && geofs.animation.values.haglFeet >= 250 + restingPoint && geofs.animation.values.isPullupWarn === 0 && geofs.camera.currentModeName === "cockpit"){
+    geofs.animation.values.gpws300 = 1;
+  }
+  else{
+    geofs.animation.values.gpws300 = 0;
+  } 
+   if (geofs.animation.values.haglFeet <= 200 + restingPoint && geofs.animation.values.haglFeet >= 150 + restingPoint && geofs.animation.values.isPullupWarn === 0 && geofs.camera.currentModeName === "cockpit"){
+    geofs.animation.values.gpws200 = 1;
+  }
+  else{
+    geofs.animation.values.gpws200 = 0;
+  } 
+   if (geofs.animation.values.haglFeet <= 100 + restingPoint && geofs.animation.values.haglFeet >= 50 + restingPoint && geofs.animation.values.isPullupWarn === 0 && geofs.camera.currentModeName === "cockpit"){
+    geofs.animation.values.gpws100 = 1;
+  }
+  else{
+    geofs.animation.values.gpws100 = 0;
+  } 
+   if (geofs.animation.values.haglFeet <= 50 + restingPoint && geofs.animation.values.haglFeet >= 40 + restingPoint && geofs.animation.values.isPullupWarn === 0 && geofs.camera.currentModeName === "cockpit"){
+    geofs.animation.values.gpws50 = 1;
+  }
+  else{
+    geofs.animation.values.gpws50 = 0;
+  } 
+   if (geofs.animation.values.haglFeet <= 40 + restingPoint && geofs.animation.values.haglFeet >= 30 + restingPoint && geofs.animation.values.isPullupWarn === 0 && geofs.camera.currentModeName === "cockpit"){
+    geofs.animation.values.gpws40 = 1;
+  }
+  else{
+    geofs.animation.values.gpws40 = 0;
+  } 
+   if (geofs.animation.values.haglFeet <= 30 + restingPoint && geofs.animation.values.haglFeet >= 20 + restingPoint && geofs.animation.values.isPullupWarn === 0 && geofs.camera.currentModeName === "cockpit"){
+    geofs.animation.values.gpws30 = 1;
+  }
+  else{
+    geofs.animation.values.gpws30 = 0;
+  } 
+   if (geofs.animation.values.haglFeet <= 20 + restingPoint && geofs.animation.values.haglFeet >= 10 + restingPoint && geofs.animation.values.isPullupWarn === 0 && geofs.camera.currentModeName === "cockpit"){
+    geofs.animation.values.gpws20 = 1;
+  }
+  else{
+    geofs.animation.values.gpws20 = 0;
+  } 
+   if (geofs.animation.values.haglFeet <= 10 + restingPoint && geofs.animation.values.haglFeet >= 5 + restingPoint && geofs.animation.values.isPullupWarn === 0 && geofs.camera.currentModeName === "cockpit"){
+    geofs.animation.values.gpws10 = 1;
+  }
+  else{
+    geofs.animation.values.gpws10 = 0;
+  } 
+}
+  else {
+    geofs.animation.values.gpws1000 = 0;
+    geofs.animation.values.gpws500 = 0;
+    geofs.animation.values.gpws400 = 0;
+    geofs.animation.values.gpws300 = 0;
+    geofs.animation.values.gpws200 = 0;
+    geofs.animation.values.gpws100 = 0;
+    geofs.animation.values.gpws50 = 0;
+    geofs.animation.values.gpws40 = 0;
+    geofs.animation.values.gpws30 = 0;
+    geofs.animation.values.gpws20 = 0;
+    geofs.animation.values.gpws10 = 0;
+  }
+}
+
+function getStall() {
+    if (ui.hud.stallAlarmOn && geofs.animation.values.haglFeet > 20){
+        geofs.animation.values.isStall = 1
+    }
+    else{
+        geofs.animation.values.isStall = 0
+    }
+}
+
+function overspeed() {
+  if (geofs.animation.values.kias >= 450) {
+    geofs.animation.values.overspeed = 1;
+  }
+  else {
+    geofs.animation.values.overspeed = 0;
+    }
+  }
+
+setInterval(function() {
+  getTrafficProximity();
+  getFlapChange();
+  getWindShear();
+  testForApproach();
+  testTerrainorAppr();
+  getRetard();
+  doRadioAltCall();
+  getStall()
+  overspeed()
+})
+//assign alarms and sound fx
+
+geofs.aircraft.instance.definition.sounds[11] = {};
+geofs.aircraft.instance.definition.sounds[11].id = "flapssound"
+geofs.aircraft.instance.definition.sounds[11].file = "https://138772948-227015667470610340.preview.editmysite.com/uploads/1/3/8/7/138772948/777flap.mp3"
+geofs.aircraft.instance.definition.sounds[11].effects = { "start": { "value": "flapschange" } }
+
+geofs.aircraft.instance.definition.sounds[12] = {};
+geofs.aircraft.instance.definition.sounds[12].id = "landinggearwarn"
+geofs.aircraft.instance.definition.sounds[12].file = "https://raw.githubusercontent.com/AbnormalHuman/Old-757-and-767-Sound-Pack/main/Too%20Low%20Gear.mp3"
+geofs.aircraft.instance.definition.sounds[12].effects = { "start": { "value": "isGearWarn" } }
+
+geofs.aircraft.instance.definition.sounds[13] = {};
+geofs.aircraft.instance.definition.sounds[13].id = "flapswarn"
+geofs.aircraft.instance.definition.sounds[13].file = "https://raw.githubusercontent.com/AbnormalHuman/Old-757-and-767-Sound-Pack/main/Too%20Low%20Flaps.mp3"
+geofs.aircraft.instance.definition.sounds[13].effects = { "start": { "value": "isFlapsWarn" } }
+
+geofs.aircraft.instance.definition.sounds[14] = {};
+geofs.aircraft.instance.definition.sounds[14].id = "terrainwarn"
+geofs.aircraft.instance.definition.sounds[14].file = "https://raw.githubusercontent.com/AbnormalHuman/Old-757-and-767-Sound-Pack/main/Too%20Low%20Terrain.mp3"
+geofs.aircraft.instance.definition.sounds[14].effects = { "start": { "value": "isTerrainWarn" } }
+
+geofs.aircraft.instance.definition.sounds[15] = {};
+geofs.aircraft.instance.definition.sounds[15].id = "pullwarn"
+geofs.aircraft.instance.definition.sounds[15].file = "https://raw.githubusercontent.com/AbnormalHuman/Old-757-and-767-Sound-Pack/main/WHOOP%20WHOOP%20PULL%20UP.mp3"
+geofs.aircraft.instance.definition.sounds[15].effects = { "start": { "value": "isPullupWarn" } }
+
+geofs.aircraft.instance.definition.sounds[16] = {};
+geofs.aircraft.instance.definition.sounds[16].id = "1000"
+geofs.aircraft.instance.definition.sounds[16].file = "https://raw.githubusercontent.com/AbnormalHuman/Old-757-and-767-Sound-Pack/main/1000.mp3"
+geofs.aircraft.instance.definition.sounds[16].effects = { "start": { "value": "gpws1000" } }
+
+geofs.aircraft.instance.definition.sounds[17] = {};
+geofs.aircraft.instance.definition.sounds[17].id = "500"
+geofs.aircraft.instance.definition.sounds[17].file = "https://raw.githubusercontent.com/AbnormalHuman/Old-757-and-767-Sound-Pack/main/500.mp3"
+geofs.aircraft.instance.definition.sounds[17].effects = { "start": { "value": "gpws500" } }
+
+geofs.aircraft.instance.definition.sounds[18] = {};
+geofs.aircraft.instance.definition.sounds[18].id = "400"
+geofs.aircraft.instance.definition.sounds[18].file = "https://raw.githubusercontent.com/AbnormalHuman/Old-757-and-767-Sound-Pack/main/400.mp3"
+geofs.aircraft.instance.definition.sounds[18].effects = { "start": { "value": "gpws400" } }
+
+geofs.aircraft.instance.definition.sounds[19] = {};
+geofs.aircraft.instance.definition.sounds[19].id = "300"
+geofs.aircraft.instance.definition.sounds[19].file = "https://raw.githubusercontent.com/AbnormalHuman/Old-757-and-767-Sound-Pack/main/300.mp3"
+geofs.aircraft.instance.definition.sounds[19].effects = { "start": { "value": "gpws300" } }
+
+geofs.aircraft.instance.definition.sounds[20] = {};
+geofs.aircraft.instance.definition.sounds[20].id = "200"
+geofs.aircraft.instance.definition.sounds[20].file = "https://raw.githubusercontent.com/AbnormalHuman/Old-757-and-767-Sound-Pack/main/200.mp3"
+geofs.aircraft.instance.definition.sounds[20].effects = { "start": { "value": "gpws200" } }
+
+geofs.aircraft.instance.definition.sounds[21] = {};
+geofs.aircraft.instance.definition.sounds[21].id = "100"
+geofs.aircraft.instance.definition.sounds[21].file = "https://raw.githubusercontent.com/AbnormalHuman/Old-757-and-767-Sound-Pack/main/100.mp3"
+geofs.aircraft.instance.definition.sounds[21].effects = { "start": { "value": "gpws100" } }
+
+geofs.aircraft.instance.definition.sounds[22] = {};
+geofs.aircraft.instance.definition.sounds[22].id = "50"
+geofs.aircraft.instance.definition.sounds[22].file = "https://raw.githubusercontent.com/AbnormalHuman/Old-757-and-767-Sound-Pack/main/50.mp3"
+geofs.aircraft.instance.definition.sounds[22].effects = { "start": { "value": "gpws50" } }
+
+geofs.aircraft.instance.definition.sounds[23] = {};
+geofs.aircraft.instance.definition.sounds[23].id = "40"
+geofs.aircraft.instance.definition.sounds[23].file = "https://raw.githubusercontent.com/AbnormalHuman/Old-757-and-767-Sound-Pack/main/40.mp3"
+geofs.aircraft.instance.definition.sounds[23].effects = { "start": { "value": "gpws40" } }
+
+geofs.aircraft.instance.definition.sounds[24] = {};
+geofs.aircraft.instance.definition.sounds[24].id = "30"
+geofs.aircraft.instance.definition.sounds[24].file = "https://raw.githubusercontent.com/AbnormalHuman/Old-757-and-767-Sound-Pack/main/30.mp3"
+geofs.aircraft.instance.definition.sounds[24].effects = { "start": { "value": "gpws30" } }
+
+geofs.aircraft.instance.definition.sounds[25] = {};
+geofs.aircraft.instance.definition.sounds[25].id = "20"
+geofs.aircraft.instance.definition.sounds[25].file = "https://raw.githubusercontent.com/AbnormalHuman/Old-757-and-767-Sound-Pack/main/20.mp3"
+geofs.aircraft.instance.definition.sounds[25].effects = { "start": { "value": "gpws20" } }
+
+geofs.aircraft.instance.definition.sounds[26] = {};
+geofs.aircraft.instance.definition.sounds[26].id = "10"
+geofs.aircraft.instance.definition.sounds[26].file = "https://raw.githubusercontent.com/AbnormalHuman/Old-757-and-767-Sound-Pack/main/10.mp3"
+geofs.aircraft.instance.definition.sounds[26].effects = { "start": { "value": "gpws10" } }
+
+geofs.aircraft.instance.definition.sounds[27] = {};
+geofs.aircraft.instance.definition.sounds[27].id = "TCAS"
+geofs.aircraft.instance.definition.sounds[27].file = "https://138772948-227015667470610340.preview.editmysite.com/uploads/1/3/8/7/138772948/traffic.mp3"
+geofs.aircraft.instance.definition.sounds[27].effects = { "start": { "value": "isTCAS" } }
+
+geofs.aircraft.instance.definition.sounds[28] = {};
+geofs.aircraft.instance.definition.sounds[28].id = "climb"
+geofs.aircraft.instance.definition.sounds[28].file = "https://138772948-227015667470610340.preview.editmysite.com/uploads/1/3/8/7/138772948/climb.mp3"
+geofs.aircraft.instance.definition.sounds[28].effects = { "start": { "value": "isTCASClimb" } }
+
+geofs.aircraft.instance.definition.sounds[29] = {};
+geofs.aircraft.instance.definition.sounds[29].id = "descend"
+geofs.aircraft.instance.definition.sounds[29].file = "https://138772948-227015667470610340.preview.editmysite.com/uploads/1/3/8/7/138772948/descend.mp3"
+geofs.aircraft.instance.definition.sounds[29].effects = { "start": { "value": "isTCASDescend" } }
+
+geofs.aircraft.instance.definition.sounds[30] = {};
+geofs.aircraft.instance.definition.sounds[30].id = "clear"
+geofs.aircraft.instance.definition.sounds[30].file = "https://138772948-227015667470610340.preview.editmysite.com/uploads/1/3/8/7/138772948/clear.mp3"
+geofs.aircraft.instance.definition.sounds[30].effects = { "start": { "value": "isTCASClear" } }
+
+geofs.aircraft.instance.definition.sounds[31] = {};
+geofs.aircraft.instance.definition.sounds[31].id = "stall"
+geofs.aircraft.instance.definition.sounds[31].file = "https://sage-narwhal-290a3c.netlify.app/boeingstall.mp3"
+geofs.aircraft.instance.definition.sounds[31].effects = { "start": { "value": "isStall" } }
+
+geofs.aircraft.instance.definition.sounds[32] = {};
+geofs.aircraft.instance.definition.sounds[32].id = "overspeed";
+geofs.aircraft.instance.definition.sounds[32].file = "https://138772948-227015667470610340.preview.editmysite.com/uploads/1/3/8/7/138772948/sounds_overspeed.mp3";
+geofs.aircraft.instance.definition.sounds[32].effects = {
+	"start": {
+		"value": "overspeed"
+	}
+};
